@@ -1,4 +1,6 @@
-﻿namespace NeuralTrainer.Domain;
+﻿using NeuralTrainer.Domain.ActivationFunctions;
+
+namespace NeuralTrainer.Domain;
 
 
 // TODO: Single Responsibility Principle (SRP) violations to fix:
@@ -36,11 +38,12 @@
 
 public class NeuralNetwork
 {
-	private double weight;
-	private double bias;
-	private readonly double learningRate;
+	private double _weight;
+	private double _bias;
+	private readonly double _learningRate;
+	private readonly IActivationFunction _activationFunction;
 
-	public NeuralNetwork(double learningRate = 0.1)
+	public NeuralNetwork(double learningRate, IActivationFunction activationFunction)
 	{
 		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
 		{
@@ -55,19 +58,20 @@ public class NeuralNetwork
 			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate should not exceed 1 for stable training.");
 		}
 
-		this.learningRate = learningRate;
+		_learningRate = learningRate;
+		_activationFunction = activationFunction;
 
 		// Initialize with random values
 		var random = new Random();
 
-		weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
-		bias = random.NextDouble() * 2 - 1;
+		_weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
+		_bias = random.NextDouble() * 2 - 1;
 	}
 
 	public double Forward(double input)
 	{
-		var z = input * weight + bias;
-		return Sigmoid(z);
+		var z = input * _weight + _bias;
+		return _activationFunction.Activate(z);
 	}
 
 	public void Train(TrainingExample[] examples, int epochs)
@@ -86,11 +90,11 @@ public class NeuralNetwork
 				totalLoss += error * error;
 
 				// Backpropagation
-				var outputGradient = error * SigmoidDerivative(output);
+				var outputGradient = error * _activationFunction.Derivative(output);
 
 				// Update weights and bias
-				weight += learningRate * outputGradient * example.Input;
-				bias += learningRate * outputGradient;
+				_weight += _learningRate * outputGradient * example.Input;
+				_bias += _learningRate * outputGradient;
 			}
 
 			// Print progress every 1000 epochs
@@ -99,15 +103,5 @@ public class NeuralNetwork
 				Console.WriteLine($"Epoch {epoch}, Loss: {totalLoss / examples.Length:F4}");
 			}
 		}
-	}
-
-	private static double Sigmoid(double x)
-	{
-		return 1.0 / (1.0 + Math.Exp(-x));
-	}
-
-	private static double SigmoidDerivative(double sigmoidOutput)
-	{
-		return sigmoidOutput * (1 - sigmoidOutput);
 	}
 }

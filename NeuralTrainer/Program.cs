@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NeuralTrainer.Domain;
+using NeuralTrainer.Domain.ActivationFunctions;
 
 namespace NeuralTrainer;
 
@@ -22,6 +25,12 @@ class Program
 		{
 			Description = "Enable debug mode",
 			DefaultValueFactory = parseResult => false,
+		};
+
+		var activationFunction = new Option<ActivationFunctionType>("--activation")
+		{
+			Description = "Activation function type",
+			DefaultValueFactory = parseResult => ActivationFunctionType.Sigmoid,
 		};
 
 		// Create root command
@@ -101,7 +110,11 @@ class Program
 			.ConfigureServices((hostContext, services) =>
 			{
 				services.Configure<AppSettings>(hostContext.Configuration);
-				services.AddTransient<IAppState>(sp => new NOTGateTrainingAppState());
+				services.AddTransient<IAppState>(sp => new NOTGateTrainingAppState(sp, sp.GetRequiredService<IActivationFunctionFactory>()));
+				services.AddTransient<IActivationFunctionFactory>(sp => new ActivationFunctionFactory(
+					sp.GetRequiredService<IOptions<AppSettings>>().Value.DefaultActivationFunction
+				));
+				services.AddTransient(sp => sp.GetRequiredService<IActivationFunctionFactory>().GetDefaultActivationFunction());
 			});
 	}
 }
