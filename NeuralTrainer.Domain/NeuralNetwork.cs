@@ -1,12 +1,49 @@
-﻿namespace NeuralTrainer.Domain;
+﻿using NeuralTrainer.Domain.ActivationFunctions;
+
+namespace NeuralTrainer.Domain;
+
+
+// TODO: Single Responsibility Principle (SRP) violations to fix:
+// TODO: - Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
+// TODO: - Extract weight initialization logic into IWeightInitializer interface
+// TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
+// TODO: - Extract loss calculation into ILossFunction interface
+// TODO: - Extract progress reporting (Console.WriteLine) into IProgressReporter interface
+
+// TODO: Open/Closed Principle (OCP) improvements:
+// TODO: - Make network architecture configurable (layers, neurons) without modifying this class
+// TODO: - Allow different optimization algorithms without changing Train method
+// TODO: - Support different loss functions without modifying the training loop
+
+// TODO: Dependency Inversion Principle (DIP) fixes:
+// TODO: - Inject Random instance or IRandom interface instead of creating internally
+// TODO: - Remove direct Console.WriteLine dependency - inject ILogger or IProgressReporter
+// TODO: - Constructor should depend on abstractions, not create concrete implementations
+
+// TODO: Interface Segregation Principle (ISP) considerations:
+// TODO: - Create focused interfaces: IForwardPropagation, ITrainable, IPredictable
+// TODO: - Clients shouldn't be forced to depend on methods they don't use
+
+// TODO: Liskov Substitution Principle (LSP) preparations:
+// TODO: - Define base abstractions (INeuralNetwork) that derived types can properly implement
+// TODO: - Ensure any future network types can be substituted without breaking behavior
+
+// TODO: Additional refactoring for clean architecture:
+// TODO: - Make weight and bias immutable after training (or provide read-only access)
+// TODO: - Add parameter validation for Train method (null checks, epochs > 0)
+// TODO: - Consider making this class focus only on inference, not training
+// TODO: - Extract hyperparameters (learning rate) into a configuration object
+// TODO: - Add proper abstraction for network state persistence/loading
+
 
 public class NeuralNetwork
 {
-	private double weight;
-	private double bias;
-	private readonly double learningRate;
+	private double _weight;
+	private double _bias;
+	private readonly double _learningRate;
+	private readonly IActivationFunction _activationFunction;
 
-	public NeuralNetwork(double learningRate = 0.1)
+	public NeuralNetwork(double learningRate, IActivationFunction activationFunction)
 	{
 		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
 		{
@@ -21,19 +58,20 @@ public class NeuralNetwork
 			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate should not exceed 1 for stable training.");
 		}
 
-		this.learningRate = learningRate;
+		_learningRate = learningRate;
+		_activationFunction = activationFunction;
 
 		// Initialize with random values
 		var random = new Random();
 
-		weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
-		bias = random.NextDouble() * 2 - 1;
+		_weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
+		_bias = random.NextDouble() * 2 - 1;
 	}
 
 	public double Forward(double input)
 	{
-		var z = input * weight + bias;
-		return Sigmoid(z);
+		var z = input * _weight + _bias;
+		return _activationFunction.Activate(z);
 	}
 
 	public void Train(TrainingExample[] examples, int epochs)
@@ -52,11 +90,11 @@ public class NeuralNetwork
 				totalLoss += error * error;
 
 				// Backpropagation
-				var outputGradient = error * SigmoidDerivative(output);
+				var outputGradient = error * _activationFunction.Derivative(output);
 
 				// Update weights and bias
-				weight += learningRate * outputGradient * example.Input;
-				bias += learningRate * outputGradient;
+				_weight += _learningRate * outputGradient * example.Input;
+				_bias += _learningRate * outputGradient;
 			}
 
 			// Print progress every 1000 epochs
@@ -65,15 +103,5 @@ public class NeuralNetwork
 				Console.WriteLine($"Epoch {epoch}, Loss: {totalLoss / examples.Length:F4}");
 			}
 		}
-	}
-
-	private static double Sigmoid(double x)
-	{
-		return 1.0 / (1.0 + Math.Exp(-x));
-	}
-
-	private static double SigmoidDerivative(double sigmoidOutput)
-	{
-		return sigmoidOutput * (1 - sigmoidOutput);
 	}
 }
