@@ -1,6 +1,8 @@
 {
 	"cSpell.words": [
 		"ackages",
+		"appsettings",
+		"Backpropagation",
 		"buildtransitive",
 		"consoleloggerparameters",
 		"contentfiles",
@@ -9,6 +11,7 @@
 		"dotnettools",
 		"highlightdark",
 		"lcovname",
+		"Liskov",
 		"msbuild",
 		"omnisharp",
 		"reportgenerator",
@@ -62,5 +65,6 @@
   "coverage-gutters.showLineCoverage": true,
   "coverage-gutters.showRulerCoverage": true,
   "coverage-gutters.highlightdark": "rgba(45, 121, 10, 0.5)",
-  "coverage-gutters.noHighlightDark": "rgba(121, 31, 10, 0.5)"
+"coverage-gutters.noHighlightDark": "rgba(121, 31, 10, 0.5)",
+"FSharp.suggestGitignore": false
 }
