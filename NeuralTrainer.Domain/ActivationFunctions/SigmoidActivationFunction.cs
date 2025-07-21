@@ -1,5 +1,16 @@
 namespace NeuralTrainer.Domain.ActivationFunctions;
 
+// Single Responsibility Principle:
+//
+// The activation function has been extracted, and can now be easily replaced with
+// other activation functions.
+//
+// The neural network class now has 1 less thing that it's responsible for,
+// but the refactoring is not done.
+//
+// Also, this refactoring has hurt our test coverage score! (oh no!)
+//
+
 public class SigmoidActivationFunction : IActivationFunction
 {
 	public double Activate(double input)

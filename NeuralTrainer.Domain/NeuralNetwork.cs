@@ -4,7 +4,7 @@ namespace NeuralTrainer.Domain;
 
 
 // TODO: Single Responsibility Principle (SRP) violations to fix:
-// TODO: - Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
+// TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
 // TODO: - Extract weight initialization logic into IWeightInitializer interface
 // TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
 // TODO: - Extract loss calculation into ILossFunction interface

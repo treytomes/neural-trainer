@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
 
