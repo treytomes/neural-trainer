@@ -8,36 +8,51 @@ public class NeuralNetwork
 
 	public NeuralNetwork(double learningRate = 0.1)
 	{
+		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
+		{
+			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be a finite number.");
+		}
+		if (learningRate <= 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be positive.");
+		}
+		if (learningRate > 1)
+		{
+			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate should not exceed 1 for stable training.");
+		}
+
 		this.learningRate = learningRate;
+
 		// Initialize with random values
 		var random = new Random();
+
 		weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
 		bias = random.NextDouble() * 2 - 1;
 	}
 
 	public double Forward(double input)
 	{
-		double z = input * weight + bias;
+		var z = input * weight + bias;
 		return Sigmoid(z);
 	}
 
 	public void Train(TrainingExample[] examples, int epochs)
 	{
-		for (int epoch = 0; epoch < epochs; epoch++)
+		for (var epoch = 0; epoch < epochs; epoch++)
 		{
-			double totalLoss = 0;
+			var totalLoss = 0.0;
 
 			foreach (var example in examples)
 			{
 				// Forward pass
-				double output = Forward(example.Input);
+				var output = Forward(example.Input);
 
 				// Calculate loss (squared error)
-				double error = example.Target - output;
+				var error = example.Target - output;
 				totalLoss += error * error;
 
 				// Backpropagation
-				double outputGradient = error * SigmoidDerivative(output);
+				var outputGradient = error * SigmoidDerivative(output);
 
 				// Update weights and bias
 				weight += learningRate * outputGradient * example.Input;
