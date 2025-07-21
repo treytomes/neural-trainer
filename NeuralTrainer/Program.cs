@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace NeuralTrainer;
 
@@ -52,8 +51,9 @@ class Program
 			// Build host with DI container.
 			using var host = CreateHostBuilder(configFile, debug).Build();
 
-			// await host.Services.GetRequiredService<IGameEngine>().RunAsync();
-			Console.WriteLine("And there we are.");
+			host.Services.GetRequiredService<IAppState>().Run();
+
+			Console.WriteLine("Done!");
 			await Task.Yield();
 			return 0;
 		}
@@ -100,8 +100,8 @@ class Program
 			})
 			.ConfigureServices((hostContext, services) =>
 			{
-				// Register configuration
 				services.Configure<AppSettings>(hostContext.Configuration);
+				services.AddTransient<IAppState>(sp => new NOTGateTrainingAppState());
 			});
 	}
 }
