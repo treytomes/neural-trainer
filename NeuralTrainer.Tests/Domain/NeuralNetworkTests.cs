@@ -122,13 +122,13 @@ public class NeuralNetworkTests
 			fastNetwork.Train(trainingData, epochs);
 
 			// Calculate errors
-			double slowError0 = Math.Abs(1 - slowNetwork.Forward(0));
-			double slowError1 = Math.Abs(0 - slowNetwork.Forward(1));
-			double fastError0 = Math.Abs(1 - fastNetwork.Forward(0));
-			double fastError1 = Math.Abs(0 - fastNetwork.Forward(1));
+			var slowError0 = Math.Abs(1 - slowNetwork.Forward(0));
+			var slowError1 = Math.Abs(0 - slowNetwork.Forward(1));
+			var fastError0 = Math.Abs(1 - fastNetwork.Forward(0));
+			var fastError1 = Math.Abs(0 - fastNetwork.Forward(1));
 
-			double slowTotalError = slowError0 + slowError1;
-			double fastTotalError = fastError0 + fastError1;
+			var slowTotalError = slowError0 + slowError1;
+			var fastTotalError = fastError0 + fastError1;
 
 			// Assert - higher learning rate should have lower error after same epochs
 			Assert.True(fastTotalError < slowTotalError,

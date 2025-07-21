@@ -1,13 +1,7 @@
 namespace NeuralTrainer.Domain;
 
-public class TrainingExample
+public class TrainingExample(double input, double target)
 {
-	public double Input { get; }
-	public double Target { get; }
-
-	public TrainingExample(double input, double target)
-	{
-		Input = input;
-		Target = target;
-	}
+	public double Input { get; } = input;
+	public double Target { get; } = target;
 }
