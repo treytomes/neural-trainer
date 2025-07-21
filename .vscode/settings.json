@@ -1,13 +1,22 @@
 {
 	"cSpell.words": [
 		"ackages",
+		"buildtransitive",
 		"consoleloggerparameters",
+		"contentfiles",
 		"coreclr",
 		"docstates",
 		"dotnettools",
+		"highlightdark",
+		"lcovname",
+		"msbuild",
 		"omnisharp",
+		"reportgenerator",
+		"reporttypes",
+		"rgba",
 		"rsuser",
 		"snupkg",
+		"targetdir",
 		"userosscache",
 		"userprefs",
 		"xunit"
@@ -46,4 +55,12 @@
 			"source.fixAll": "always"
 		}
 	}
+,
+  "dotnet-test-explorer.testProjectPath": "**/*Tests.csproj",
+  "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=./TestResults/lcov.info",
+  "coverage-gutters.lcovname": "TestResults/lcov.info",
+  "coverage-gutters.showLineCoverage": true,
+  "coverage-gutters.showRulerCoverage": true,
+  "coverage-gutters.highlightdark": "rgba(45, 121, 10, 0.5)",
+  "coverage-gutters.noHighlightDark": "rgba(121, 31, 10, 0.5)"
 }
