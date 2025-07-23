@@ -4,7 +4,6 @@ using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
 
-
 // TODO: Single Responsibility Principle (SRP) violations to fix:
 // TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
 // TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
@@ -97,13 +96,18 @@ public class NeuralNetwork
 				var output = Forward(example.Input);
 
 				// Calculate loss.
-				totalLoss += _lossFunction.Calculate(output, example.Target);
+				var loss = _lossFunction.Calculate(output, example.Target);
+				totalLoss += loss;
 
 				// Calculate error gradient.
 				var errorGradient = _lossFunction.Derivative(output, example.Target);
 
-				// Backpropagation.
+				// Backpropagation
 				var outputGradient = errorGradient * _activationFunction.Derivative(output);
+
+				// Calculate parameter updates.
+				var weightDelta = _learningRate * outputGradient * example.Input;
+				var biasDelta = _learningRate * outputGradient;
 
 				// Update weights and bias.
 				_weight += _learningRate * outputGradient * example.Input;

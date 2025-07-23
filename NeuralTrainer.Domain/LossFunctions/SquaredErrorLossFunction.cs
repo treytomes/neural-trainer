@@ -15,6 +15,6 @@ public class SquaredErrorLossFunction : ILossFunction
 	{
 		// Derivative of squared error: -2(target - predicted).
 		// We often omit the factor of 2 as it's absorbed by learning rate.
-		return -(target - predicted);
+		return target - predicted;
 	}
 }

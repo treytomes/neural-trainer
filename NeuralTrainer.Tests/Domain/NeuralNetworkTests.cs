@@ -126,12 +126,12 @@ public class NeuralNetworkTests
 		var fastNetwork = new NeuralNetwork(0.5, activationFunction, weightInitializer, lossFunction);
 		var trainingData = new[]
 		{
-				new TrainingExample(0, 1),
-				new TrainingExample(1, 0)
-			};
+			new TrainingExample(0, 1),
+			new TrainingExample(1, 0)
+		};
 
 		// Train for fewer epochs
-		int epochs = 1000;
+		int epochs = 10000;
 
 		// Act
 		slowNetwork.Train(trainingData, epochs);
