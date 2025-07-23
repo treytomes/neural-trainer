@@ -1,5 +1,6 @@
 using Moq;
 using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.LossFunctions;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Tests;
@@ -19,6 +20,14 @@ sealed class MockBuilder
 		var mock = new Mock<IWeightInitializer>();
 		mock.Setup(a => a.InitializeBias()).Returns(0.5);
 		mock.Setup(a => a.InitializeWeight(It.IsAny<int>(), It.IsAny<int>())).Returns(0.25);
+		return mock;
+	}
+
+	public Mock<ILossFunction> GetMockLossFunction()
+	{
+		var mock = new Mock<ILossFunction>();
+		mock.Setup(a => a.Calculate(It.IsAny<double>(), It.IsAny<double>())).Returns(0.5);
+		mock.Setup(a => a.Derivative(It.IsAny<double>(), It.IsAny<double>())).Returns(0.25);
 		return mock;
 	}
 }

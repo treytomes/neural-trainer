@@ -1,4 +1,5 @@
 ﻿using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.LossFunctions;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
@@ -7,8 +8,8 @@ namespace NeuralTrainer.Domain;
 // TODO: Single Responsibility Principle (SRP) violations to fix:
 // TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
 // TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
+// TODO: - (done) Extract loss calculation into ILossFunction interface
 // TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
-// TODO: - Extract loss calculation into ILossFunction interface
 // TODO: - Extract progress reporting (Console.WriteLine) into IProgressReporter interface
 
 // TODO: Open/Closed Principle (OCP) improvements:
@@ -45,12 +46,13 @@ public class NeuralNetwork
 	private double _bias;
 	private readonly double _learningRate;
 	private readonly IActivationFunction _activationFunction;
+	private readonly ILossFunction _lossFunction;
 
 	#endregion
 
 	#region Constructors
 
-	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
+	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction)
 	{
 		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
 		{
@@ -67,6 +69,7 @@ public class NeuralNetwork
 
 		_learningRate = learningRate;
 		_activationFunction = activationFunction;
+		_lossFunction = lossFunction;
 
 		_weight = weightInitializer.InitializeWeight();
 		_bias = weightInitializer.InitializeBias();
@@ -90,22 +93,24 @@ public class NeuralNetwork
 
 			foreach (var example in examples)
 			{
-				// Forward pass
+				// Forward pass.
 				var output = Forward(example.Input);
 
-				// Calculate loss (squared error)
-				var error = example.Target - output;
-				totalLoss += error * error;
+				// Calculate loss.
+				totalLoss += _lossFunction.Calculate(output, example.Target);
 
-				// Backpropagation
-				var outputGradient = error * _activationFunction.Derivative(output);
+				// Calculate error gradient.
+				var errorGradient = _lossFunction.Derivative(output, example.Target);
 
-				// Update weights and bias
+				// Backpropagation.
+				var outputGradient = errorGradient * _activationFunction.Derivative(output);
+
+				// Update weights and bias.
 				_weight += _learningRate * outputGradient * example.Input;
 				_bias += _learningRate * outputGradient;
 			}
 
-			// Print progress every 1000 epochs
+			// Print progress every 1000 epochs.
 			if (epoch % 1000 == 0)
 			{
 				Console.WriteLine($"Epoch {epoch}, Loss: {totalLoss / examples.Length:F4}");
