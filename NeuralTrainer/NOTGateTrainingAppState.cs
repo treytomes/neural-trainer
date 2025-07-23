@@ -1,12 +1,10 @@
 using NeuralTrainer.Domain;
-using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
-using NeuralTrainer.Domain.Output;
-using NeuralTrainer.Domain.WeightInitializers;
+using NeuralTrainer.Domain.Training;
 
 namespace NeuralTrainer;
 
-class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction, IProgressReporter progressReporter) : IAppState
+class NOTGateTrainingAppState(INeuralNetwork network, ILossFunction lossFunction, IProgressReporter progressReporter) : IAppState
 {
 	#region Methods
 
@@ -28,12 +26,12 @@ class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightIni
 		Console.WriteLine();
 		Console.WriteLine("==========================================");
 
-		// Liskov Substitution!
-		// "Objects of a superclass shall be replaceable with objects of its subclasses without breaking the application."
-		// aka. subclasses should be interchangeable
+		var trainer = new GradientDescentTrainer(
+			learningRate: 0.1,
+			lossFunction: lossFunction,
+			progressReporter: progressReporter);
 
-		var network = new NeuralNetwork(learningRate: 1, activationFunction, weightInitializer, lossFunction, progressReporter);
-		network.Train(trainingData, epochs: 10000);
+		trainer.Train(network, trainingData, epochs: 10000);
 
 		// Test the trained network
 		Console.WriteLine("\nTesting trained network:");

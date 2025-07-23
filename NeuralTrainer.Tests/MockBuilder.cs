@@ -1,7 +1,8 @@
 using Moq;
+using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
-using NeuralTrainer.Domain.Output;
+using NeuralTrainer.Domain.Training;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Tests;
@@ -36,6 +37,13 @@ sealed class MockBuilder
 	{
 		var mock = new Mock<IProgressReporter>();
 		mock.Setup(a => a.ReportProgress(It.IsAny<int>(), It.IsAny<double>()));
+		return mock;
+	}
+
+	public Mock<ITrainer> GetMockTrainer()
+	{
+		var mock = new Mock<ITrainer>();
+		mock.Setup(t => t.Train(It.IsAny<INeuralNetwork>(), It.IsAny<TrainingExample[]>(), It.IsAny<int>()));
 		return mock;
 	}
 }

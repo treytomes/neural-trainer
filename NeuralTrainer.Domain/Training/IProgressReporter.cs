@@ -1,4 +1,4 @@
-namespace NeuralTrainer.Domain.Output;
+namespace NeuralTrainer.Domain.Training;
 
 /// <summary>
 /// Interface for reporting training progress

@@ -1,4 +1,4 @@
-using NeuralTrainer.Domain.Output;
+using NeuralTrainer.Domain.Training;
 
 namespace NeuralTrainer;
 

@@ -1,6 +1,6 @@
 ﻿using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
-using NeuralTrainer.Domain.Output;
+using NeuralTrainer.Domain.Training;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
@@ -38,44 +38,31 @@ namespace NeuralTrainer.Domain;
 // TODO: - Add proper abstraction for network state persistence/loading
 
 
-public class NeuralNetwork
+public class NeuralNetwork : INeuralNetwork
 {
 	#region Fields
 
 	private double _weight;
 	private double _bias;
-	private readonly double _learningRate;
-	private readonly IActivationFunction _activationFunction;
-	private readonly ILossFunction _lossFunction;
-	private readonly IProgressReporter _progressReporter;
 
 	#endregion
 
 	#region Constructors
 
-	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction, IProgressReporter progressReporter)
+	public NeuralNetwork(IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
-		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be a finite number.");
-		}
-		if (learningRate <= 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be positive.");
-		}
-		if (learningRate > 1)
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate should not exceed 1 for stable training.");
-		}
-
-		_learningRate = learningRate;
-		_activationFunction = activationFunction;
-		_lossFunction = lossFunction;
-		_progressReporter = progressReporter;
-
 		_weight = weightInitializer.InitializeWeight();
 		_bias = weightInitializer.InitializeBias();
+		ActivationFunction = activationFunction;
 	}
+
+	#endregion
+
+	#region Properties
+
+	public double Weight => _weight;
+	public double Bias => _bias;
+	public IActivationFunction ActivationFunction { get; }
 
 	#endregion
 
@@ -84,41 +71,13 @@ public class NeuralNetwork
 	public double Forward(double input)
 	{
 		var z = input * _weight + _bias;
-		return _activationFunction.Activate(z);
+		return ActivationFunction.Activate(z);
 	}
 
-	public void Train(TrainingExample[] examples, int epochs)
+	public void UpdateParameters(double weightDelta, double biasDelta)
 	{
-		for (var epoch = 0; epoch < epochs; epoch++)
-		{
-			var totalLoss = 0.0;
-
-			foreach (var example in examples)
-			{
-				// Forward pass.
-				var output = Forward(example.Input);
-
-				// Calculate loss.
-				var loss = _lossFunction.Calculate(output, example.Target);
-				totalLoss += loss;
-
-				// Calculate error gradient.
-				var errorGradient = _lossFunction.Derivative(output, example.Target);
-
-				// Backpropagation
-				var outputGradient = errorGradient * _activationFunction.Derivative(output);
-
-				// Calculate parameter updates.
-				var weightDelta = _learningRate * outputGradient * example.Input;
-				var biasDelta = _learningRate * outputGradient;
-
-				// Update weights and bias.
-				_weight += _learningRate * outputGradient * example.Input;
-				_bias += _learningRate * outputGradient;
-			}
-
-			_progressReporter.ReportProgress(epoch, totalLoss / examples.Length);
-		}
+		_weight += weightDelta;
+		_bias += biasDelta;
 	}
 
 	#endregion

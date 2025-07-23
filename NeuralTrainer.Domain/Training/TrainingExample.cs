@@ -1,4 +1,4 @@
-namespace NeuralTrainer.Domain;
+namespace NeuralTrainer.Domain.Training;
 
 public class TrainingExample(double input, double target)
 {
