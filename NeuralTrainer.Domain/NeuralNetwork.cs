@@ -9,7 +9,7 @@ namespace NeuralTrainer.Domain;
 // TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
 // TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
 // TODO: - (done) Extract loss calculation into ILossFunction interface
-// TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
+// TODO: - (done) Extract training/backpropagation logic into separate ITrainer or IOptimizer class
 // TODO: - (done) Extract progress reporting (Console.WriteLine) into IProgressReporter interface
 
 // TODO: Open/Closed Principle (OCP) improvements:
