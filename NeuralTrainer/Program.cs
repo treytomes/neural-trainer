@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
+using NeuralTrainer.Domain.Output;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer;
@@ -134,6 +135,8 @@ class Program
 					sp.GetRequiredService<IOptions<AppSettings>>().Value.DefaultWeightInitializer
 				));
 				services.AddTransient(sp => sp.GetRequiredService<IWeightInitializerFactory>().GetDefaultWeightInitializer());
+
+				services.AddTransient<IProgressReporter, ConsoleProgressReporter>();
 
 				services.AddTransient<ILossFunction, SquaredErrorLossFunction>();
 			});

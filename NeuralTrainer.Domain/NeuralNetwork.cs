@@ -1,5 +1,6 @@
 ﻿using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
+using NeuralTrainer.Domain.Output;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
@@ -9,7 +10,7 @@ namespace NeuralTrainer.Domain;
 // TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
 // TODO: - (done) Extract loss calculation into ILossFunction interface
 // TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
-// TODO: - Extract progress reporting (Console.WriteLine) into IProgressReporter interface
+// TODO: - (done) Extract progress reporting (Console.WriteLine) into IProgressReporter interface
 
 // TODO: Open/Closed Principle (OCP) improvements:
 // TODO: - Make network architecture configurable (layers, neurons) without modifying this class
@@ -46,12 +47,13 @@ public class NeuralNetwork
 	private readonly double _learningRate;
 	private readonly IActivationFunction _activationFunction;
 	private readonly ILossFunction _lossFunction;
+	private readonly IProgressReporter _progressReporter;
 
 	#endregion
 
 	#region Constructors
 
-	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction)
+	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction, IProgressReporter progressReporter)
 	{
 		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
 		{
@@ -69,6 +71,7 @@ public class NeuralNetwork
 		_learningRate = learningRate;
 		_activationFunction = activationFunction;
 		_lossFunction = lossFunction;
+		_progressReporter = progressReporter;
 
 		_weight = weightInitializer.InitializeWeight();
 		_bias = weightInitializer.InitializeBias();
@@ -114,11 +117,7 @@ public class NeuralNetwork
 				_bias += _learningRate * outputGradient;
 			}
 
-			// Print progress every 1000 epochs.
-			if (epoch % 1000 == 0)
-			{
-				Console.WriteLine($"Epoch {epoch}, Loss: {totalLoss / examples.Length:F4}");
-			}
+			_progressReporter.ReportProgress(epoch, totalLoss / examples.Length);
 		}
 	}
 

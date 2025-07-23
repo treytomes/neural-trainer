@@ -1,20 +1,13 @@
 using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
 using NeuralTrainer.Domain.LossFunctions;
+using NeuralTrainer.Domain.Output;
 using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer;
 
-class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction) : IAppState
+class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightInitializer weightInitializer, ILossFunction lossFunction, IProgressReporter progressReporter) : IAppState
 {
-	#region Fields
-
-	private readonly IActivationFunction _activationFunction = activationFunction;
-	private readonly IWeightInitializer _weightInitializer = weightInitializer;
-	private readonly ILossFunction _lossFunction = lossFunction;
-
-	#endregion
-
 	#region Methods
 
 	public void Run()
@@ -39,8 +32,8 @@ class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightIni
 		// "Objects of a superclass shall be replaceable with objects of its subclasses without breaking the application."
 		// aka. subclasses should be interchangeable
 
-		var network = new NeuralNetwork(learningRate: 1, _activationFunction, _weightInitializer, _lossFunction);
-		network.Train(trainingData, epochs: 1000);
+		var network = new NeuralNetwork(learningRate: 1, activationFunction, weightInitializer, lossFunction, progressReporter);
+		network.Train(trainingData, epochs: 10000);
 
 		// Test the trained network
 		Console.WriteLine("\nTesting trained network:");
