@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
 
 namespace NeuralTrainer;
@@ -27,7 +26,7 @@ class Program
 			DefaultValueFactory = parseResult => false,
 		};
 
-		var activationFunction = new Option<ActivationFunctionType>("--activation")
+		var activationFunctionTypeOption = new Option<ActivationFunctionType>("--activation")
 		{
 			Description = "Activation function type",
 			DefaultValueFactory = parseResult => ActivationFunctionType.Sigmoid,
@@ -38,13 +37,15 @@ class Program
 		{
 			configFileOption,
 			debugOption,
+			activationFunctionTypeOption,
 		};
 
 		rootCommand.SetAction((parseResult) =>
 		{
 			var configFile = parseResult.GetValue(configFileOption)!;
 			var debug = parseResult.GetValue(debugOption);
-			var task = RunAsync(configFile, debug);
+			var activationFunction = parseResult.GetValue(activationFunctionTypeOption);
+			var task = RunAsync(configFile, debug, activationFunction);
 			task.Wait();
 			return task.Result;
 		});
@@ -53,12 +54,12 @@ class Program
 		return await parseResult.InvokeAsync();
 	}
 
-	static async Task<int> RunAsync(string configFile, bool debug)
+	static async Task<int> RunAsync(string configFile, bool debug, ActivationFunctionType activationFunctionType)
 	{
 		try
 		{
 			// Build host with DI container.
-			using var host = CreateHostBuilder(configFile, debug).Build();
+			using var host = CreateHostBuilder(configFile, debug, activationFunctionType).Build();
 
 			host.Services.GetRequiredService<IAppState>().Run();
 
@@ -73,7 +74,7 @@ class Program
 		}
 	}
 
-	static IHostBuilder CreateHostBuilder(string configFile, bool debug)
+	static IHostBuilder CreateHostBuilder(string configFile, bool debug, ActivationFunctionType activationFunctionType)
 	{
 		return Host.CreateDefaultBuilder()
 			.ConfigureAppConfiguration((hostContext, config) =>
