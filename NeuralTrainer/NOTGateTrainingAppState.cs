@@ -1,19 +1,20 @@
 using Microsoft.Extensions.DependencyInjection;
 using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer;
 
-class NOTGateTrainingAppState : IAppState
+class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightInitializer weightInitializer) : IAppState
 {
-	private readonly IServiceProvider _serviceProvider;
-	private readonly IActivationFunctionFactory _activationFunctionFactory;
+	#region Fields
 
-	public NOTGateTrainingAppState(IServiceProvider serviceProvider, IActivationFunctionFactory activationFunctionFactory)
-	{
-		_serviceProvider = serviceProvider;
-		_activationFunctionFactory = activationFunctionFactory;
-	}
+	private readonly IActivationFunction _activationFunction = activationFunction;
+	private readonly IWeightInitializer _weightInitializer = weightInitializer;
+
+	#endregion
+
+	#region Methods
 
 	public void Run()
 	{
@@ -27,33 +28,34 @@ class NOTGateTrainingAppState : IAppState
 			new TrainingExample(1, 0)
 		};
 
-		// Create and train the network
-		foreach (var fnType in Enum.GetValues<ActivationFunctionType>())
+		// Create and train the network.
+
+		Console.WriteLine();
+		Console.WriteLine();
+		Console.WriteLine("==========================================");
+
+		// Liskov Substitution!
+		// "Objects of a superclass shall be replaceable with objects of its subclasses without breaking the application."
+		// aka. subclasses should be interchangeable
+
+		var network = new NeuralNetwork(learningRate: 1, _activationFunction, _weightInitializer);
+		network.Train(trainingData, epochs: 1000);
+
+		// Test the trained network
+		Console.WriteLine("\nTesting trained network:");
+		Console.WriteLine($"Input: 0, Output: {network.Forward(0):F4}, Expected: 1");
+		Console.WriteLine($"Input: 1, Output: {network.Forward(1):F4}, Expected: 0");
+
+		// Test with intermediate values
+		Console.WriteLine("\nTesting with intermediate values:");
+		for (var x = 0.0; x <= 1.0; x += 0.1)
 		{
-			Console.WriteLine("==========================================");
-			Console.WriteLine($"{fnType} Activation Training\n");
-
-			// Liskov Substitution!
-			// "Objects of a superclass shall be replaceable with objects of its subclasses without breaking the application."
-			// aka. subclasses should be interchangeable
-
-			var network = new NeuralNetwork(learningRate: 1, _activationFunctionFactory.GetActivationFunction(fnType));
-			network.Train(trainingData, epochs: 1000);
-
-			// Test the trained network
-			Console.WriteLine("\nTesting trained network:");
-			Console.WriteLine($"Input: 0, Output: {network.Forward(0):F4}, Expected: 1");
-			Console.WriteLine($"Input: 1, Output: {network.Forward(1):F4}, Expected: 0");
-
-			// Test with intermediate values
-			Console.WriteLine("\nTesting with intermediate values:");
-			for (var x = 0.0; x <= 1.0; x += 0.1)
-			{
-				Console.WriteLine($"Input: {x:F1}, Output: {network.Forward(x):F4}");
-			}
-			Console.WriteLine("==========================================");
-			Console.WriteLine();
-			Console.WriteLine();
+			Console.WriteLine($"Input: {x:F1}, Output: {network.Forward(x):F4}");
 		}
+		Console.WriteLine("==========================================");
+		Console.WriteLine();
+		Console.WriteLine();
 	}
+
+	#endregion
 }

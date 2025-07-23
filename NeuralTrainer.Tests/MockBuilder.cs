@@ -1,15 +1,24 @@
 using Moq;
 using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Tests;
 
 sealed class MockBuilder
 {
-	public IActivationFunction GetMockActivationFunction()
+	public Mock<IActivationFunction> GetMockActivationFunction()
 	{
-		var mockActivation = new Mock<IActivationFunction>();
-		mockActivation.Setup(a => a.Activate(It.IsAny<double>())).Returns(0.5);
-		mockActivation.Setup(a => a.Derivative(It.IsAny<double>())).Returns(0.25);
-		return mockActivation.Object;
+		var mock = new Mock<IActivationFunction>();
+		mock.Setup(a => a.Activate(It.IsAny<double>())).Returns(0.5);
+		mock.Setup(a => a.Derivative(It.IsAny<double>())).Returns(0.25);
+		return mock;
+	}
+
+	public Mock<IWeightInitializer> GetMockWeightInitializer()
+	{
+		var mock = new Mock<IWeightInitializer>();
+		mock.Setup(a => a.InitializeBias()).Returns(0.5);
+		mock.Setup(a => a.InitializeWeight(It.IsAny<int>(), It.IsAny<int>())).Returns(0.25);
+		return mock;
 	}
 }

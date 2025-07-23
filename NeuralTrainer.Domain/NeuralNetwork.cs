@@ -1,11 +1,12 @@
 ﻿using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
 
 
 // TODO: Single Responsibility Principle (SRP) violations to fix:
-// TODO: - Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
-// TODO: - Extract weight initialization logic into IWeightInitializer interface
+// TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
+// TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
 // TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
 // TODO: - Extract loss calculation into ILossFunction interface
 // TODO: - Extract progress reporting (Console.WriteLine) into IProgressReporter interface
@@ -38,12 +39,18 @@ namespace NeuralTrainer.Domain;
 
 public class NeuralNetwork
 {
+	#region Fields
+
 	private double _weight;
 	private double _bias;
 	private readonly double _learningRate;
 	private readonly IActivationFunction _activationFunction;
 
-	public NeuralNetwork(double learningRate, IActivationFunction activationFunction)
+	#endregion
+
+	#region Constructors
+
+	public NeuralNetwork(double learningRate, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
 		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
 		{
@@ -61,12 +68,13 @@ public class NeuralNetwork
 		_learningRate = learningRate;
 		_activationFunction = activationFunction;
 
-		// Initialize with random values
-		var random = new Random();
-
-		_weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
-		_bias = random.NextDouble() * 2 - 1;
+		_weight = weightInitializer.InitializeWeight();
+		_bias = weightInitializer.InitializeBias();
 	}
+
+	#endregion
+
+	#region Methods
 
 	public double Forward(double input)
 	{
@@ -104,4 +112,6 @@ public class NeuralNetwork
 			}
 		}
 	}
+
+	#endregion
 }

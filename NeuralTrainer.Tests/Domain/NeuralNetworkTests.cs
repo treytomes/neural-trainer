@@ -1,6 +1,7 @@
 using Moq;
 using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Tests.Domains;
 
@@ -17,9 +18,10 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var mockActivation = new MockBuilder().GetMockActivationFunction();
+		var mockWeightInitializer = new MockBuilder().GetMockWeightInitializer();
 
 		// Act & Assert
-		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation));
+		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation.Object, mockWeightInitializer.Object));
 		Assert.Contains("Learning rate must be positive.", exception.Message);
 		Assert.Equal("learningRate", exception.ParamName);
 	}
@@ -35,9 +37,10 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var mockActivation = new MockBuilder().GetMockActivationFunction();
+		var mockWeightInitializer = new MockBuilder().GetMockWeightInitializer();
 
 		// Act & Assert
-		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation));
+		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation.Object, mockWeightInitializer.Object));
 		Assert.Contains("Learning rate should not exceed 1 for stable training.", exception.Message);
 		Assert.Equal("learningRate", exception.ParamName);
 	}
@@ -53,9 +56,10 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var mockActivation = new MockBuilder().GetMockActivationFunction();
+		var mockWeightInitializer = new MockBuilder().GetMockWeightInitializer();
 
 		// Act
-		var network = new NeuralNetwork(validLearningRate, mockActivation);
+		var network = new NeuralNetwork(validLearningRate, mockActivation.Object, mockWeightInitializer.Object);
 
 		// Assert
 		Assert.NotNull(network);
@@ -71,9 +75,10 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var mockActivation = new MockBuilder().GetMockActivationFunction();
+		var mockWeightInitializer = new MockBuilder().GetMockWeightInitializer();
 
 		// Act & Assert
-		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation));
+		var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new NeuralNetwork(invalidLearningRate, mockActivation.Object, mockWeightInitializer.Object));
 		Assert.NotNull(exception);
 		Assert.Equal("learningRate", exception.ParamName);
 	}
@@ -85,7 +90,8 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var activationFunction = new SigmoidActivationFunction();
-		var network = new NeuralNetwork(learningRate, activationFunction);
+		var weightInitializer = new UniformRandomInitializer();
+		var network = new NeuralNetwork(learningRate, activationFunction, weightInitializer);
 		var trainingData = new[]
 		{
 				new TrainingExample(0, 1),
@@ -108,8 +114,9 @@ public class NeuralNetworkTests
 	{
 		// Arrange
 		var activationFunction = new SigmoidActivationFunction();
-		var slowNetwork = new NeuralNetwork(0.1, activationFunction);
-		var fastNetwork = new NeuralNetwork(0.5, activationFunction);
+		var weightInitializer = new UniformRandomInitializer();
+		var slowNetwork = new NeuralNetwork(0.1, activationFunction, weightInitializer);
+		var fastNetwork = new NeuralNetwork(0.5, activationFunction, weightInitializer);
 		var trainingData = new[]
 		{
 				new TrainingExample(0, 1),
@@ -142,16 +149,15 @@ public class NeuralNetworkTests
 	public void NeuralNetwork_ShouldAcceptCustomActivationFunction()
 	{
 		// Arrange
-		var mockActivation = new Mock<IActivationFunction>();
-		mockActivation.Setup(a => a.Activate(It.IsAny<double>())).Returns(0.5);
-		mockActivation.Setup(a => a.Derivative(It.IsAny<double>())).Returns(0.25);
+		var activationFunction = new MockBuilder().GetMockActivationFunction();
+		var weightInitializer = new MockBuilder().GetMockWeightInitializer();
 
 		// Act
-		var network = new NeuralNetwork(0.1, mockActivation.Object);
+		var network = new NeuralNetwork(0.1, activationFunction.Object, weightInitializer.Object);
 		var output = network.Forward(1.0);
 
 		// Assert
 		Assert.Equal(0.5, output);
-		mockActivation.Verify(a => a.Activate(It.IsAny<double>()), Times.Once);
+		activationFunction.Verify(a => a.Activate(It.IsAny<double>()), Times.Once);
 	}
 }

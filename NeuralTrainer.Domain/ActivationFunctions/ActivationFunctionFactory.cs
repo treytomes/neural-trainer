@@ -2,12 +2,22 @@ namespace NeuralTrainer.Domain.ActivationFunctions;
 
 public class ActivationFunctionFactory : IActivationFunctionFactory
 {
+	#region Fields
+
 	private readonly ActivationFunctionType _defaultActivationFunctionType;
+
+	#endregion
+
+	#region Constructors
 
 	public ActivationFunctionFactory(ActivationFunctionType defaultActivationFunctionType)
 	{
 		_defaultActivationFunctionType = defaultActivationFunctionType;
 	}
+
+	#endregion
+
+	#region Methods
 
 	public IActivationFunction GetDefaultActivationFunction()
 	{
@@ -27,4 +37,6 @@ public class ActivationFunctionFactory : IActivationFunctionFactory
 				return new TanhActivationFunction();
 		}
 	}
+
+	#endregion
 }
