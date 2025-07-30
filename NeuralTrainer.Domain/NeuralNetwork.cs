@@ -37,13 +37,11 @@ namespace NeuralTrainer.Domain;
 // TODO: - Extract hyperparameters (learning rate) into a configuration object
 // TODO: - Add proper abstraction for network state persistence/loading
 
-
 public class NeuralNetwork : INeuralNetwork
 {
 	#region Fields
 
-	private List<double> _weights;
-	private double _bias;
+	private INeuron _neuron;
 
 	#endregion
 
@@ -51,18 +49,15 @@ public class NeuralNetwork : INeuralNetwork
 
 	public NeuralNetwork(int inputSize, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
-		_weights = Enumerable.Range(0, inputSize).Select(x => weightInitializer.InitializeWeight()).ToList();
-		_bias = weightInitializer.InitializeBias();
-		ActivationFunction = activationFunction;
+		InputSize = inputSize;
+		_neuron = new Neuron(inputSize, activationFunction, weightInitializer);
 	}
 
 	#endregion
 
 	#region Properties
 
-	public IReadOnlyList<double> Weights => _weights.AsReadOnly();
-	public double Bias => _bias;
-	public IActivationFunction ActivationFunction { get; }
+	public int InputSize { get; }
 
 	#endregion
 
@@ -70,25 +65,17 @@ public class NeuralNetwork : INeuralNetwork
 
 	public double Forward(IReadOnlyList<double> inputs)
 	{
-		if (inputs.Count != _weights.Count) throw new ArgumentException("Input size mismatch.");
-
-		var z = _bias;
-		for (var i = 0; i < inputs.Count; i++)
-		{
-			z += inputs[i] * _weights[i];
-		}
-		return ActivationFunction.Activate(z);
+		return _neuron.Forward(inputs);
 	}
 
 	public void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta)
 	{
-		if (weightDeltas.Count != _weights.Count) throw new ArgumentException("Weight size mismatch.");
+		_neuron.UpdateParameters(weightDeltas, biasDelta);
+	}
 
-		for (var i = 0; i < _weights.Count; i++)
-		{
-			_weights[i] += weightDeltas[i];
-		}
-		_bias += biasDelta;
+	public (IReadOnlyList<double> weightGradients, double biasGradient) CalculateGradients(IReadOnlyList<double> inputs, double outputGradient)
+	{
+		return _neuron.CalculateGradients(inputs, outputGradient);
 	}
 
 	#endregion

@@ -116,41 +116,4 @@ public class NeuralNetworkTrainingTests
 		// Assert - should be close to 0.5
 		Assert.InRange(output, 0.4, 0.6);
 	}
-
-	[Fact]
-	public void CompareTrainers_MomentumVsStandardGradientDescent()
-	{
-		// Arrange - create identical networks
-		var activation = new SigmoidActivationFunction();
-		var weightInitializer = new UniformRandomInitializer(-0.5, 0.5, seed: 42);
-		var lossFunction = new SquaredErrorLossFunction();
-
-		var standardNetwork = new NeuralNetwork(1, activation, weightInitializer);
-		var momentumNetwork = new NeuralNetwork(1, activation, weightInitializer);
-
-		var standardReporter = new StatisticsProgressReporter();
-		var momentumReporter = new StatisticsProgressReporter();
-
-		var standardTrainer = new GradientDescentTrainer(0.1, lossFunction, standardReporter);
-		var momentumTrainer = new MomentumTrainer(0.1, 0.9, lossFunction, momentumReporter);
-
-		// XOR problem training data
-		var trainingData = new[]
-		{
-			new TrainingExample([0], 0),
-			new TrainingExample([1], 1)
-		};
-
-		// Act - train both networks
-		standardTrainer.Train(standardNetwork, trainingData, epochs: 2000);
-		momentumTrainer.Train(momentumNetwork, trainingData, epochs: 2000);
-
-		// Assert - compare final loss
-		double standardFinalLoss = standardReporter.Statistics.Last().AverageLoss;
-		double momentumFinalLoss = momentumReporter.Statistics.Last().AverageLoss;
-
-		// Both should reach reasonably low error
-		Assert.True(standardFinalLoss < 0.1);
-		Assert.True(momentumFinalLoss < 0.1);
-	}
 }

@@ -8,19 +8,9 @@ namespace NeuralTrainer.Domain;
 public interface INeuralNetwork
 {
 	/// <summary>
-	/// Get the activation function used by the network.
+	/// The number of inputs accepted in this layer.
 	/// </summary>
-	IActivationFunction ActivationFunction { get; }
-
-	/// <summary>
-	/// Get the current bias value.
-	/// </summary>
-	double Bias { get; }
-
-	/// <summary>
-	/// Get the current weight values.
-	/// </summary>
-	IReadOnlyList<double> Weights { get; }
+	int InputSize { get; }
 
 	/// <summary>
 	/// Perform forward propagation.
@@ -34,4 +24,6 @@ public interface INeuralNetwork
 	/// Note that external entities are not allowed to directly modify the data.
 	/// </remarks>
 	void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta);
+
+	(IReadOnlyList<double> weightGradients, double biasGradient) CalculateGradients(IReadOnlyList<double> inputs, double outputGradient);
 }

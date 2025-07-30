@@ -54,32 +54,27 @@ public class GradientDescentTrainer : ITrainer
 
 			foreach (var example in examples)
 			{
-				// Forward pass.
+				// Forward pass
 				var output = network.Forward(example.Inputs);
 
-				// Calculate loss.
+				// Calculate loss
 				var loss = _lossFunction.Calculate(output, example.Target);
 				totalLoss += loss;
 
-				// Calculate error gradient.
+				// Calculate error gradient
 				var errorGradient = _lossFunction.Derivative(output, example.Target);
 
-				// Backpropagation.
-				var outputGradient = errorGradient * network.ActivationFunction.Derivative(output);
+				// Get gradients from the network
+				var (weightGradients, biasGradient) = network.CalculateGradients(example.Inputs, errorGradient);
 
-				// Calculate parameter updates.
-				var weightDeltas = new double[example.Inputs.Count];
-				for (int i = 0; i < example.Inputs.Count; i++)
-				{
-					weightDeltas[i] = _learningRate * outputGradient * example.Inputs[i];
-				}
-				var biasDelta = _learningRate * outputGradient;
+				// Scale by learning rate
+				var weightDeltas = weightGradients.Select(g => _learningRate * g).ToList();
+				var biasDelta = _learningRate * biasGradient;
 
-				// Update weights and bias.
+				// Update parameters
 				network.UpdateParameters(weightDeltas, biasDelta);
 			}
 
-			// Report progress.
 			_progressReporter.ReportProgress(epoch, totalLoss / examples.Count());
 		}
 	}
