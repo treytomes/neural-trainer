@@ -98,9 +98,9 @@ class Program
 				if (debug)
 				{
 					commandLineConfig["Debug"] = "true";
-					commandLineConfig["ActivationFunction"] = activationFunctionType.ToString();
-					commandLineConfig["WeightInitializer"] = weightInitializerType.ToString();
 				}
+				commandLineConfig["DefaultActivationFunction"] = activationFunctionType.ToString();
+				commandLineConfig["DefaultWeightInitializer"] = weightInitializerType.ToString();
 
 				config.AddInMemoryCollection(commandLineConfig);
 			})
