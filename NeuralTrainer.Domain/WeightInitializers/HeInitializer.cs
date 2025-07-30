@@ -1,5 +1,7 @@
 namespace NeuralTrainer.Domain.WeightInitializers;
 
+// Note: In our shallow networks, this initializer seems to be complete rubbish...
+
 /// <summary>
 /// Implements He (Kaiming) initialization for neural network weights.
 /// </summary>
@@ -33,7 +35,7 @@ public class HeInitializer : IWeightInitializer
 	public double InitializeWeight(int fanIn = 1, int fanOut = 1)
 	{
 		// He initialization: sqrt(2/fanIn)
-		double scale = Math.Sqrt(2.0 / fanIn);
+		var scale = Math.Sqrt(2.0 / fanIn);
 		return (2 * _random.NextDouble() - 1) * scale; // Uniform between -scale and scale
 	}
 

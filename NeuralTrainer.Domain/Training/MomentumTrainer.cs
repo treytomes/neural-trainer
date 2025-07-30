@@ -58,7 +58,7 @@ public class MomentumTrainer : ITrainer
 
 	#region Methods
 
-	public void Train(INeuralNetwork network, TrainingExample[] examples, int epochs)
+	public void Train(INeuralNetwork network, IEnumerable<TrainingExample> examples, int epochs)
 	{
 		for (var epoch = 0; epoch < epochs; epoch++)
 		{
@@ -88,7 +88,7 @@ public class MomentumTrainer : ITrainer
 				_previousBiasDelta = biasDelta;
 			}
 
-			_progressReporter.ReportProgress(epoch, totalLoss / examples.Length);
+			_progressReporter.ReportProgress(epoch, totalLoss / examples.Count());
 		}
 	}
 

@@ -11,5 +11,5 @@ public interface ITrainer
 	/// <param name="network">The neural network to train</param>
 	/// <param name="examples">Training examples</param>
 	/// <param name="epochs">Number of training epochs</param>
-	void Train(INeuralNetwork network, TrainingExample[] examples, int epochs);
+	void Train(INeuralNetwork network, IEnumerable<TrainingExample> examples, int epochs);
 }

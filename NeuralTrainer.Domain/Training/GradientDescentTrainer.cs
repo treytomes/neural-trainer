@@ -41,7 +41,7 @@ public class GradientDescentTrainer : ITrainer
 
 	#region Methods
 
-	public void Train(INeuralNetwork network, TrainingExample[] examples, int epochs)
+	public void Train(INeuralNetwork network, IEnumerable<TrainingExample> examples, int epochs)
 	{
 		if (epochs <= 0)
 		{
@@ -80,7 +80,7 @@ public class GradientDescentTrainer : ITrainer
 			}
 
 			// Report progress.
-			_progressReporter.ReportProgress(epoch, totalLoss / examples.Length);
+			_progressReporter.ReportProgress(epoch, totalLoss / examples.Count());
 		}
 	}
 

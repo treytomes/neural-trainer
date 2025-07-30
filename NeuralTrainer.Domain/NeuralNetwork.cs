@@ -13,9 +13,9 @@ namespace NeuralTrainer.Domain;
 // TODO: - (done) Extract progress reporting (Console.WriteLine) into IProgressReporter interface
 
 // TODO: Open/Closed Principle (OCP) improvements:
-// TODO: - Make network architecture configurable (layers, neurons) without modifying this class
+// TODO: - (half done...) Make network architecture configurable (layers, neurons) without modifying this class
 // TODO: - Allow different optimization algorithms without changing Train method
-// TODO: - Support different loss functions without modifying the training loop
+// TODO: - (done) Support different loss functions without modifying the training loop
 
 // TODO: Dependency Inversion Principle (DIP) fixes:
 // TODO: - Inject Random instance or IRandom interface instead of creating internally
