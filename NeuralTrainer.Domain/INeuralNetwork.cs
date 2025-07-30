@@ -8,14 +8,9 @@ namespace NeuralTrainer.Domain;
 public interface INeuralNetwork
 {
 	/// <summary>
-	/// Perform forward propagation.
+	/// Get the activation function used by the network.
 	/// </summary>
-	double Forward(double input);
-
-	/// <summary>
-	/// Get the current weight value.
-	/// </summary>
-	double Weight { get; }
+	IActivationFunction ActivationFunction { get; }
 
 	/// <summary>
 	/// Get the current bias value.
@@ -23,15 +18,20 @@ public interface INeuralNetwork
 	double Bias { get; }
 
 	/// <summary>
+	/// Get the current weight values.
+	/// </summary>
+	IReadOnlyList<double> Weights { get; }
+
+	/// <summary>
+	/// Perform forward propagation.
+	/// </summary>
+	double Forward(IReadOnlyList<double> inputs);
+
+	/// <summary>
 	/// Update the network parameters.
 	/// </summary>
 	/// <remarks>
 	/// Note that external entities are not allowed to directly modify the data.
 	/// </remarks>
-	void UpdateParameters(double weightDelta, double biasDelta);
-
-	/// <summary>
-	/// Get the activation function used by the network.
-	/// </summary>
-	IActivationFunction ActivationFunction { get; }
+	void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta);
 }

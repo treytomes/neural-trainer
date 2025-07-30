@@ -55,7 +55,7 @@ public class GradientDescentTrainer : ITrainer
 			foreach (var example in examples)
 			{
 				// Forward pass.
-				var output = network.Forward(example.Input);
+				var output = network.Forward(example.Inputs);
 
 				// Calculate loss.
 				var loss = _lossFunction.Calculate(output, example.Target);
@@ -68,11 +68,15 @@ public class GradientDescentTrainer : ITrainer
 				var outputGradient = errorGradient * network.ActivationFunction.Derivative(output);
 
 				// Calculate parameter updates.
-				var weightDelta = _learningRate * outputGradient * example.Input;
+				var weightDeltas = new double[example.Inputs.Count];
+				for (int i = 0; i < example.Inputs.Count; i++)
+				{
+					weightDeltas[i] = _learningRate * outputGradient * example.Inputs[i];
+				}
 				var biasDelta = _learningRate * outputGradient;
 
 				// Update weights and bias.
-				network.UpdateParameters(weightDelta, biasDelta);
+				network.UpdateParameters(weightDeltas, biasDelta);
 			}
 
 			// Report progress.

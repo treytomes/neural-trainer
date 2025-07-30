@@ -26,7 +26,7 @@ public class MomentumTrainer : ITrainer
 	private readonly ILossFunction _lossFunction;
 	private readonly IProgressReporter _progressReporter;
 
-	private double _previousWeightDelta = 0;
+	private double[] _previousWeightDeltas = [];
 	private double _previousBiasDelta = 0;
 
 	#endregion
@@ -66,20 +66,25 @@ public class MomentumTrainer : ITrainer
 
 			foreach (var example in examples)
 			{
-				var output = network.Forward(example.Input);
+				var output = network.Forward(example.Inputs);
 				var loss = _lossFunction.Calculate(output, example.Target);
 				totalLoss += loss;
 
 				var errorGradient = _lossFunction.Derivative(output, example.Target);
 				var outputGradient = errorGradient * network.ActivationFunction.Derivative(output);
 
-				// Calculate updates with momentum
-				var weightDelta = _learningRate * outputGradient * example.Input + _momentum * _previousWeightDelta;
+				// Calculate updates with momentum.
+				var weightDeltas = new double[example.Inputs.Count];
+				for (int i = 0; i < example.Inputs.Count; i++)
+				{
+					weightDeltas[i] = _learningRate * outputGradient * example.Inputs[i] + _momentum * _previousWeightDeltas[i];
+				}
+
 				var biasDelta = _learningRate * outputGradient + _momentum * _previousBiasDelta;
 
-				network.UpdateParameters(weightDelta, biasDelta);
+				network.UpdateParameters(weightDeltas, biasDelta);
 
-				_previousWeightDelta = weightDelta;
+				_previousWeightDeltas = weightDeltas;
 				_previousBiasDelta = biasDelta;
 			}
 

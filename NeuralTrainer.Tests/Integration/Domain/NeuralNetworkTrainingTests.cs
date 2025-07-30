@@ -20,7 +20,7 @@ public class NeuralNetworkTrainingTests
 		weightInitializer.Setup(w => w.InitializeWeight(1, 1)).Returns(0.5);
 		weightInitializer.Setup(w => w.InitializeBias()).Returns(0.1);
 
-		var network = new NeuralNetwork(activationFunction, weightInitializer.Object);
+		var network = new NeuralNetwork(1, activationFunction, weightInitializer.Object);
 
 		var lossFunction = new SquaredErrorLossFunction();
 		var progressReporter = new StatisticsProgressReporter();
@@ -28,20 +28,20 @@ public class NeuralNetworkTrainingTests
 
 		var trainingData = new[]
 		{
-			new TrainingExample(0, 0),
-			new TrainingExample(1, 1)
+			new TrainingExample([0], 0),
+			new TrainingExample([1], 1)
 		};
 
 		// Calculate initial error
 		double initialError = trainingData.Average(ex =>
-			lossFunction.Calculate(network.Forward(ex.Input), ex.Target));
+			lossFunction.Calculate(network.Forward(ex.Inputs), ex.Target));
 
 		// Act
 		trainer.Train(network, trainingData, epochs: 1000);
 
 		// Calculate final error
 		double finalError = trainingData.Average(ex =>
-			lossFunction.Calculate(network.Forward(ex.Input), ex.Target));
+			lossFunction.Calculate(network.Forward(ex.Inputs), ex.Target));
 
 		// Assert
 		Assert.True(finalError < initialError);
@@ -62,7 +62,7 @@ public class NeuralNetworkTrainingTests
 		weightInitializer.Setup(w => w.InitializeWeight(1, 1)).Returns(0.0);
 		weightInitializer.Setup(w => w.InitializeBias()).Returns(0.0);
 
-		var network = new NeuralNetwork(activationFunction, weightInitializer.Object);
+		var network = new NeuralNetwork(1, activationFunction, weightInitializer.Object);
 
 		var lossFunction = new SquaredErrorLossFunction();
 		var progressReporter = new NullProgressReporter();
@@ -70,16 +70,16 @@ public class NeuralNetworkTrainingTests
 
 		var trainingData = new[]
 		{
-				new TrainingExample(0, 0),
-				new TrainingExample(1, 1)
+				new TrainingExample([0], 0),
+				new TrainingExample([1], 1)
 			};
 
 		// Act - train the network
 		trainer.Train(network, trainingData, epochs: 5000);
 
 		// Predict
-		double output0 = network.Forward(0);
-		double output1 = network.Forward(1);
+		double output0 = network.Forward([0]);
+		double output1 = network.Forward([1]);
 
 		// Assert
 		Assert.InRange(output0, 0, 0.1); // Output for input 0 should be close to 0
@@ -92,7 +92,7 @@ public class NeuralNetworkTrainingTests
 		// Arrange
 		var activationFunction = new SigmoidActivationFunction();
 		var weightInitializer = new UniformRandomInitializer(-0.5, 0.5, seed: 42);
-		var network = new NeuralNetwork(activationFunction, weightInitializer);
+		var network = new NeuralNetwork(1, activationFunction, weightInitializer);
 
 		var lossFunction = new SquaredErrorLossFunction();
 		var progressReporter = new NullProgressReporter();
@@ -101,17 +101,17 @@ public class NeuralNetworkTrainingTests
 		// Simple linear relation: y = x
 		var trainingData = new[]
 		{
-			new TrainingExample(0.0, 0.0),
-			new TrainingExample(0.2, 0.2),
-			new TrainingExample(0.8, 0.8),
-			new TrainingExample(1.0, 1.0)
+			new TrainingExample([0.0], 0.0),
+			new TrainingExample([0.2], 0.2),
+			new TrainingExample([0.8], 0.8),
+			new TrainingExample([1.0], 1.0)
 		};
 
 		// Act - train the network
 		trainer.Train(network, trainingData, epochs: 10000);
 
 		// Test on interpolated value
-		double output = network.Forward(0.5);
+		double output = network.Forward([0.5]);
 
 		// Assert - should be close to 0.5
 		Assert.InRange(output, 0.4, 0.6);
@@ -125,8 +125,8 @@ public class NeuralNetworkTrainingTests
 		var weightInitializer = new UniformRandomInitializer(-0.5, 0.5, seed: 42);
 		var lossFunction = new SquaredErrorLossFunction();
 
-		var standardNetwork = new NeuralNetwork(activation, weightInitializer);
-		var momentumNetwork = new NeuralNetwork(activation, weightInitializer);
+		var standardNetwork = new NeuralNetwork(1, activation, weightInitializer);
+		var momentumNetwork = new NeuralNetwork(1, activation, weightInitializer);
 
 		var standardReporter = new StatisticsProgressReporter();
 		var momentumReporter = new StatisticsProgressReporter();
@@ -137,8 +137,8 @@ public class NeuralNetworkTrainingTests
 		// XOR problem training data
 		var trainingData = new[]
 		{
-			new TrainingExample(0, 0),
-			new TrainingExample(1, 1)
+			new TrainingExample([0], 0),
+			new TrainingExample([1], 1)
 		};
 
 		// Act - train both networks

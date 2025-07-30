@@ -18,10 +18,10 @@ public class NeuralNetworkTests
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(0.3);
 
 		// Act
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Assert
-		Assert.Equal(0.5, network.Weight);
+		Assert.Equal(0.5, network.Weights[0]);
 		Assert.Equal(0.3, network.Bias);
 		Assert.Same(mockActivation.Object, network.ActivationFunction);
 	}
@@ -39,11 +39,11 @@ public class NeuralNetworkTests
 		mockActivation.Setup(a => a.Activate(It.IsAny<double>()))
 			.Returns<double>(z => z * 2); // Simple mock function that doubles the input
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act
-		var input = 2.0;
-		var result = network.Forward(input);
+		double[] inputs = [2.0];
+		var result = network.Forward(inputs);
 
 		// Assert
 		// Expected calculation: (2.0 * 0.5 + 0.3) * 2 = 2.6
@@ -61,13 +61,13 @@ public class NeuralNetworkTests
 		mockInitializer.Setup(i => i.InitializeWeight(1, 1)).Returns(0.5);
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(0.3);
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act
-		network.UpdateParameters(0.1, -0.2);
+		network.UpdateParameters([0.1], -0.2);
 
 		// Assert
-		Assert.Equal(0.6, network.Weight);
+		Assert.Equal([0.6], network.Weights);
 		Assert.Equal(0.1, network.Bias, precision: 6);
 	}
 
@@ -81,10 +81,10 @@ public class NeuralNetworkTests
 		mockInitializer.Setup(i => i.InitializeWeight(1, 1)).Returns(0.42);
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(0.0);
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act & Assert
-		Assert.Equal(0.42, network.Weight);
+		Assert.Equal([0.42], network.Weights);
 	}
 
 	[Fact]
@@ -97,7 +97,7 @@ public class NeuralNetworkTests
 		mockInitializer.Setup(i => i.InitializeWeight(1, 1)).Returns(0.0);
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(0.24);
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act & Assert
 		Assert.Equal(0.24, network.Bias);
@@ -110,7 +110,7 @@ public class NeuralNetworkTests
 		var mockActivation = new Mock<IActivationFunction>();
 		var mockInitializer = new Mock<IWeightInitializer>();
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act & Assert
 		Assert.Same(mockActivation.Object, network.ActivationFunction);
@@ -129,10 +129,10 @@ public class NeuralNetworkIntegrationTests
 		mockInitializer.Setup(i => i.InitializeWeight(1, 1)).Returns(2.0);
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(-1.0);
 
-		var network = new NeuralNetwork(activation, mockInitializer.Object);
+		var network = new NeuralNetwork(1, activation, mockInitializer.Object);
 
 		// Act
-		var output = network.Forward(0.5);
+		var output = network.Forward([0.5]);
 
 		// Assert
 		// Expected: sigmoid(0.5 * 2.0 - 1.0) = sigmoid(0) = 0.5
@@ -149,15 +149,15 @@ public class NeuralNetworkIntegrationTests
 		mockInitializer.Setup(i => i.InitializeWeight(1, 1)).Returns(1.0);
 		mockInitializer.Setup(i => i.InitializeBias()).Returns(0.0);
 
-		var network = new NeuralNetwork(mockActivation.Object, mockInitializer.Object);
+		var network = new NeuralNetwork(1, mockActivation.Object, mockInitializer.Object);
 
 		// Act
-		network.UpdateParameters(0.1, 0.2);
-		network.UpdateParameters(0.3, -0.1);
-		network.UpdateParameters(-0.2, 0.5);
+		network.UpdateParameters([0.1], 0.2);
+		network.UpdateParameters([0.3], -0.1);
+		network.UpdateParameters([-0.2], 0.5);
 
 		// Assert
-		Assert.Equal(1.2, network.Weight, precision: 6);
+		Assert.All(network.Weights, w => Assert.Equal(1.2, w, precision: 6));
 		Assert.Equal(0.6, network.Bias);
 	}
 }

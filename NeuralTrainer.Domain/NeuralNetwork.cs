@@ -42,16 +42,16 @@ public class NeuralNetwork : INeuralNetwork
 {
 	#region Fields
 
-	private double _weight;
+	private List<double> _weights;
 	private double _bias;
 
 	#endregion
 
 	#region Constructors
 
-	public NeuralNetwork(IActivationFunction activationFunction, IWeightInitializer weightInitializer)
+	public NeuralNetwork(int inputSize, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
-		_weight = weightInitializer.InitializeWeight();
+		_weights = Enumerable.Range(0, inputSize).Select(x => weightInitializer.InitializeWeight()).ToList();
 		_bias = weightInitializer.InitializeBias();
 		ActivationFunction = activationFunction;
 	}
@@ -60,7 +60,7 @@ public class NeuralNetwork : INeuralNetwork
 
 	#region Properties
 
-	public double Weight => _weight;
+	public IReadOnlyList<double> Weights => _weights.AsReadOnly();
 	public double Bias => _bias;
 	public IActivationFunction ActivationFunction { get; }
 
@@ -68,15 +68,26 @@ public class NeuralNetwork : INeuralNetwork
 
 	#region Methods
 
-	public double Forward(double input)
+	public double Forward(IReadOnlyList<double> inputs)
 	{
-		var z = input * _weight + _bias;
+		if (inputs.Count != _weights.Count) throw new ArgumentException("Input size mismatch.");
+
+		var z = _bias;
+		for (var i = 0; i < inputs.Count; i++)
+		{
+			z += inputs[i] * _weights[i];
+		}
 		return ActivationFunction.Activate(z);
 	}
 
-	public void UpdateParameters(double weightDelta, double biasDelta)
+	public void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta)
 	{
-		_weight += weightDelta;
+		if (weightDeltas.Count != _weights.Count) throw new ArgumentException("Weight size mismatch.");
+
+		for (var i = 0; i < _weights.Count; i++)
+		{
+			_weights[i] += weightDeltas[i];
+		}
 		_bias += biasDelta;
 	}
 

@@ -137,7 +137,9 @@ class Program
 
 				services.AddTransient<IProgressReporter, ConsoleProgressReporter>();
 				services.AddTransient<ILossFunction, SquaredErrorLossFunction>();
-				services.AddTransient<INeuralNetwork, NeuralNetwork>();
+
+				// NeuralNetwork now takes a configurable number of inputs, so the default constructor no longer makes sense.
+				//services.AddTransient<INeuralNetwork, NeuralNetwork>();
 			});
 	}
 }
