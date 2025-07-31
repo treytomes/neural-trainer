@@ -1,5 +1,3 @@
-using NeuralTrainer.Domain.ActivationFunctions;
-
 namespace NeuralTrainer.Domain;
 
 /// <summary>
