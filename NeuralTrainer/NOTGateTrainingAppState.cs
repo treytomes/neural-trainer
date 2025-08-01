@@ -19,8 +19,8 @@ class NOTGateTrainingAppState(IActivationFunction activationFunction, IWeightIni
 		var trainingData = new[]
 		{
 			// TODO: In a more complete example, the inputs and outputs would be vectors.
-			new TrainingExample([0], 1),
-			new TrainingExample([1], 0)
+			new TrainingExample([0], [1]),
+			new TrainingExample([1], [0])
 		};
 
 		// Create and train the network.

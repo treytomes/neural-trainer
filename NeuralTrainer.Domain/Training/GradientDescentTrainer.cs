@@ -55,24 +55,34 @@ public class GradientDescentTrainer : ITrainer
 			foreach (var example in examples)
 			{
 				// Forward pass
-				var output = network.Forward(example.Inputs);
+				var outputs = network.Forward(example.Inputs);
 
 				// Calculate loss
-				var loss = _lossFunction.Calculate(output, example.Target);
+				var loss = _lossFunction.Calculate(outputs, example.Targets);
 				totalLoss += loss;
 
-				// Calculate error gradient
-				var errorGradient = _lossFunction.Derivative(output, example.Target);
+				// Calculate error gradients for each output
+				var errorGradients = _lossFunction.Derivative(outputs, example.Targets);
 
 				// Get gradients from the network
-				var (weightGradients, biasGradient) = network.CalculateGradients(example.Inputs, errorGradient);
+				var gradientsPerNeuron = network.CalculateGradients(example.Inputs, errorGradients);
 
-				// Scale by learning rate
-				var weightDeltas = weightGradients.Select(g => _learningRate * g).ToList();
-				var biasDelta = _learningRate * biasGradient;
+				// Prepare weight deltas and bias deltas for all neurons
+				var weightDeltasList = new List<IReadOnlyList<double>>(gradientsPerNeuron.Count);
+				var biasDeltasList = new List<double>(gradientsPerNeuron.Count);
 
-				// Update parameters
-				network.UpdateParameters(weightDeltas, biasDelta);
+				foreach (var (weightGradients, biasGradient) in gradientsPerNeuron)
+				{
+					// Scale by learning rate
+					var weightDeltas = weightGradients.Select(g => _learningRate * g).ToList();
+					var biasDelta = _learningRate * biasGradient;
+
+					weightDeltasList.Add(weightDeltas);
+					biasDeltasList.Add(biasDelta);
+				}
+
+				// Update parameters for all neurons
+				network.UpdateParameters(weightDeltasList, biasDeltasList);
 			}
 
 			_progressReporter.ReportProgress(epoch, totalLoss / examples.Count());

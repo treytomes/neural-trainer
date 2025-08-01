@@ -10,10 +10,12 @@ public interface INeuralNetwork
 	/// </summary>
 	int InputSize { get; }
 
+	int OutputSize { get; }
+
 	/// <summary>
 	/// Perform forward propagation.
 	/// </summary>
-	double Forward(IReadOnlyList<double> inputs);
+	IReadOnlyList<double> Forward(IReadOnlyList<double> inputs);
 
 	/// <summary>
 	/// Update the network parameters.
@@ -21,7 +23,7 @@ public interface INeuralNetwork
 	/// <remarks>
 	/// Note that external entities are not allowed to directly modify the data.
 	/// </remarks>
-	void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta);
+	void UpdateParameters(IReadOnlyList<IReadOnlyList<double>> weightDeltas, IReadOnlyList<double> biasDeltas);
 
-	(IReadOnlyList<double> weightGradients, double biasGradient) CalculateGradients(IReadOnlyList<double> inputs, double outputGradient);
+	IReadOnlyList<(IReadOnlyList<double> weightGradients, double biasGradient)> CalculateGradients(IReadOnlyList<double> inputs, IReadOnlyList<double> outputGradients);
 }

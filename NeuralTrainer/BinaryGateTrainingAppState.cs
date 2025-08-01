@@ -16,37 +16,37 @@ class BinaryGateTrainingAppState(IActivationFunction activationFunction, IWeight
 		// Create and train the network.
 		var andNetwork = TrainGate("AND",
 		[
-			new TrainingExample([0, 0], 0),
-			new TrainingExample([0, 1], 0),
-			new TrainingExample([1, 0], 0),
-			new TrainingExample([1, 1], 1),
+			new TrainingExample([0, 0], [0]),
+			new TrainingExample([0, 1], [0]),
+			new TrainingExample([1, 0], [0]),
+			new TrainingExample([1, 1], [1]),
 		]);
 
 		// Create and train the network.
 		var nandNetwork = TrainGate("NAND",
 		[
-			new TrainingExample([0, 0], 1),
-			new TrainingExample([0, 1], 1),
-			new TrainingExample([1, 0], 1),
-			new TrainingExample([1, 1], 0),
+			new TrainingExample([0, 0], [1]),
+			new TrainingExample([0, 1], [1]),
+			new TrainingExample([1, 0], [1]),
+			new TrainingExample([1, 1], [0]),
 		]);
 
 		// Create and train the network.
 		var orNetwork = TrainGate("OR",
 		[
-			new TrainingExample([0, 0], 0),
-			new TrainingExample([0, 1], 1),
-			new TrainingExample([1, 0], 1),
-			new TrainingExample([1, 1], 1),
+			new TrainingExample([0, 0], [0]),
+			new TrainingExample([0, 1], [1]),
+			new TrainingExample([1, 0], [1]),
+			new TrainingExample([1, 1], [1]),
 		]);
 
 		// Create and train the network.
 		var norNetwork = TrainGate("NOR",
 		[
-			new TrainingExample([0, 0], 1),
-			new TrainingExample([0, 1], 0),
-			new TrainingExample([1, 0], 0),
-			new TrainingExample([1, 1], 0),
+			new TrainingExample([0, 0], [1]),
+			new TrainingExample([0, 1], [0]),
+			new TrainingExample([1, 0], [0]),
+			new TrainingExample([1, 1], [0]),
 		]);
 
 		// Note: The following 2 networks will not converge due to their non-linearity.
@@ -54,19 +54,19 @@ class BinaryGateTrainingAppState(IActivationFunction activationFunction, IWeight
 		// Create and train the network.
 		var xorNetwork = TrainGate("XOR",
 		[
-			new TrainingExample([0, 0], 0),
-			new TrainingExample([0, 1], 1),
-			new TrainingExample([1, 0], 1),
-			new TrainingExample([1, 1], 0),
+			new TrainingExample([0, 0], [0]),
+			new TrainingExample([0, 1], [1]),
+			new TrainingExample([1, 0], [1]),
+			new TrainingExample([1, 1], [0]),
 		]);
 
 		// Create and train the network.
 		var xnorNetwork = TrainGate("XNOR",
 		[
-			new TrainingExample([0, 0], 1),
-			new TrainingExample([0, 1], 0),
-			new TrainingExample([1, 0], 0),
-			new TrainingExample([1, 1], 1),
+			new TrainingExample([0, 0], [1]),
+			new TrainingExample([0, 1], [0]),
+			new TrainingExample([1, 0], [0]),
+			new TrainingExample([1, 1], [1]),
 		]);
 	}
 
@@ -97,7 +97,7 @@ class BinaryGateTrainingAppState(IActivationFunction activationFunction, IWeight
 		Console.WriteLine("Testing trained network:");
 		foreach (var example in trainingData)
 		{
-			Console.WriteLine($"{example}, actual: {network.Forward(example.Inputs)}");
+			Console.WriteLine($"{example}, actual: {string.Join(',', network.Forward(example.Inputs))}");
 		}
 
 		Console.WriteLine("==========================================");

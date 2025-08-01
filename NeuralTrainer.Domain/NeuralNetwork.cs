@@ -41,16 +41,32 @@ public class NeuralNetwork : INeuralNetwork
 {
 	#region Fields
 
-	private INeuron _neuron;
+	private IList<INeuron> _neurons;
 
 	#endregion
 
 	#region Constructors
 
+	public NeuralNetwork(IActivationFunction activationFunction, IWeightInitializer weightInitializer)
+		: this(1, activationFunction, weightInitializer)
+	{
+	}
+
 	public NeuralNetwork(int inputSize, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
+		: this(inputSize, 1, activationFunction, weightInitializer)
+	{
+	}
+
+	public NeuralNetwork(int inputSize, int outputSize, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
 		InputSize = inputSize;
-		_neuron = new Neuron(inputSize, activationFunction, weightInitializer);
+		OutputSize = outputSize;
+
+		_neurons = new List<INeuron>(outputSize);
+		for (int i = 0; i < outputSize; i++)
+		{
+			_neurons.Add(new Neuron(inputSize, activationFunction, weightInitializer));
+		}
 	}
 
 	#endregion
@@ -58,24 +74,38 @@ public class NeuralNetwork : INeuralNetwork
 	#region Properties
 
 	public int InputSize { get; }
+	public int OutputSize { get; }
 
 	#endregion
 
 	#region Methods
 
-	public double Forward(IReadOnlyList<double> inputs)
+	public IReadOnlyList<double> Forward(IReadOnlyList<double> inputs)
 	{
-		return _neuron.Forward(inputs);
+		var outputs = new double[OutputSize];
+		for (int i = 0; i < OutputSize; i++)
+		{
+			outputs[i] = _neurons[i].Forward(inputs);
+		}
+		return outputs;
 	}
 
-	public void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta)
+	public void UpdateParameters(IReadOnlyList<IReadOnlyList<double>> weightDeltas, IReadOnlyList<double> biasDeltas)
 	{
-		_neuron.UpdateParameters(weightDeltas, biasDelta);
+		for (int i = 0; i < OutputSize; i++)
+		{
+			_neurons[i].UpdateParameters(weightDeltas[i], biasDeltas[i]);
+		}
 	}
 
-	public (IReadOnlyList<double> weightGradients, double biasGradient) CalculateGradients(IReadOnlyList<double> inputs, double outputGradient)
+	public IReadOnlyList<(IReadOnlyList<double> weightGradients, double biasGradient)> CalculateGradients(IReadOnlyList<double> inputs, IReadOnlyList<double> outputGradients)
 	{
-		return _neuron.CalculateGradients(inputs, outputGradient);
+		var gradients = new (IReadOnlyList<double> weightGradients, double biasGradient)[OutputSize];
+		for (int i = 0; i < OutputSize; i++)
+		{
+			gradients[i] = _neurons[i].CalculateGradients(inputs, outputGradients[i]);
+		}
+		return gradients;
 	}
 
 	#endregion
