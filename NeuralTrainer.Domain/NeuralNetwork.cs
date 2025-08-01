@@ -17,18 +17,18 @@ namespace NeuralTrainer.Domain;
 // TODO: - Allow different optimization algorithms without changing Train method
 // TODO: - (done) Support different loss functions without modifying the training loop
 
-// TODO: Dependency Inversion Principle (DIP) fixes:
-// TODO: - Inject Random instance or IRandom interface instead of creating internally
-// TODO: - Remove direct Console.WriteLine dependency - inject ILogger or IProgressReporter
-// TODO: - Constructor should depend on abstractions, not create concrete implementations
+// TODO: Liskov Substitution Principle (LSP) preparations:
+// TODO: - Define base abstractions (INeuralNetwork) that derived types can properly implement
+// TODO: - Ensure any future network types can be substituted without breaking behavior
 
 // TODO: Interface Segregation Principle (ISP) considerations:
 // TODO: - Create focused interfaces: IForwardPropagation, ITrainable, IPredictable
 // TODO: - Clients shouldn't be forced to depend on methods they don't use
 
-// TODO: Liskov Substitution Principle (LSP) preparations:
-// TODO: - Define base abstractions (INeuralNetwork) that derived types can properly implement
-// TODO: - Ensure any future network types can be substituted without breaking behavior
+// TODO: Dependency Inversion Principle (DIP) fixes:
+// TODO: - Inject Random instance or IRandom interface instead of creating internally
+// TODO: - Remove direct Console.WriteLine dependency - inject ILogger or IProgressReporter
+// TODO: - Constructor should depend on abstractions, not create concrete implementations
 
 // TODO: Additional refactoring for clean architecture:
 // TODO: - Make weight and bias immutable after training (or provide read-only access)

@@ -140,7 +140,7 @@ class Program
 				services.AddTransient<ILossFunction, SquaredErrorLossFunction>();
 
 				// NeuralNetwork now takes a configurable number of inputs, so the default constructor no longer makes sense.
-				//services.AddTransient<INeuralNetwork, NeuralNetwork>();
+				// services.AddTransient<INeuralNetwork, NeuralNetwork>();
 			});
 	}
 }
