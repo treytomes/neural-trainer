@@ -1,6 +1,4 @@
-﻿// Program.cs
-
-using System.CommandLine;
+﻿using System.CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NeuralTrainer.Domain;
 using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.LossFunctions;
+using NeuralTrainer.Domain.Training;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer;
 
@@ -27,10 +28,16 @@ class Program
 			DefaultValueFactory = parseResult => false,
 		};
 
-		var activationFunction = new Option<ActivationFunctionType>("--activation")
+		var activationFunctionTypeOption = new Option<ActivationFunctionType>("--activation")
 		{
 			Description = "Activation function type",
 			DefaultValueFactory = parseResult => ActivationFunctionType.Sigmoid,
+		};
+
+		var weightInitializerTypeOption = new Option<WeightInitializerType>("--weightInitializer")
+		{
+			Description = "Weight initializer type",
+			DefaultValueFactory = parseResult => WeightInitializerType.Uniform,
 		};
 
 		// Create root command
@@ -38,13 +45,17 @@ class Program
 		{
 			configFileOption,
 			debugOption,
+			activationFunctionTypeOption,
+			weightInitializerTypeOption
 		};
 
 		rootCommand.SetAction((parseResult) =>
 		{
 			var configFile = parseResult.GetValue(configFileOption)!;
 			var debug = parseResult.GetValue(debugOption);
-			var task = RunAsync(configFile, debug);
+			var activationFunctionType = parseResult.GetValue(activationFunctionTypeOption);
+			var weightInitializerType = parseResult.GetValue(weightInitializerTypeOption);
+			var task = RunAsync(configFile, debug, activationFunctionType, weightInitializerType);
 			task.Wait();
 			return task.Result;
 		});
@@ -53,12 +64,12 @@ class Program
 		return await parseResult.InvokeAsync();
 	}
 
-	static async Task<int> RunAsync(string configFile, bool debug)
+	static async Task<int> RunAsync(string configFile, bool debug, ActivationFunctionType activationFunctionType, WeightInitializerType weightInitializerType)
 	{
 		try
 		{
 			// Build host with DI container.
-			using var host = CreateHostBuilder(configFile, debug).Build();
+			using var host = CreateHostBuilder(configFile, debug, activationFunctionType, weightInitializerType).Build();
 
 			host.Services.GetRequiredService<IAppState>().Run();
 
@@ -73,7 +84,7 @@ class Program
 		}
 	}
 
-	static IHostBuilder CreateHostBuilder(string configFile, bool debug)
+	static IHostBuilder CreateHostBuilder(string configFile, bool debug, ActivationFunctionType activationFunctionType, WeightInitializerType weightInitializerType)
 	{
 		return Host.CreateDefaultBuilder()
 			.ConfigureAppConfiguration((hostContext, config) =>
@@ -88,6 +99,8 @@ class Program
 				{
 					commandLineConfig["Debug"] = "true";
 				}
+				commandLineConfig["DefaultActivationFunction"] = activationFunctionType.ToString();
+				commandLineConfig["DefaultWeightInitializer"] = weightInitializerType.ToString();
 
 				config.AddInMemoryCollection(commandLineConfig);
 			})
@@ -110,11 +123,24 @@ class Program
 			.ConfigureServices((hostContext, services) =>
 			{
 				services.Configure<AppSettings>(hostContext.Configuration);
-				services.AddTransient<IAppState>(sp => new NOTGateTrainingAppState(sp, sp.GetRequiredService<IActivationFunctionFactory>()));
+				// services.AddTransient<IAppState, NOTGateTrainingAppState>();
+				services.AddTransient<IAppState, BinaryGateTrainingAppState>();
+
 				services.AddTransient<IActivationFunctionFactory>(sp => new ActivationFunctionFactory(
 					sp.GetRequiredService<IOptions<AppSettings>>().Value.DefaultActivationFunction
 				));
 				services.AddTransient(sp => sp.GetRequiredService<IActivationFunctionFactory>().GetDefaultActivationFunction());
+
+				services.AddTransient<IWeightInitializerFactory>(sp => new WeightInitializerFactory(
+					sp.GetRequiredService<IOptions<AppSettings>>().Value.DefaultWeightInitializer
+				));
+				services.AddTransient(sp => sp.GetRequiredService<IWeightInitializerFactory>().GetDefaultWeightInitializer());
+
+				services.AddTransient<IProgressReporter, ConsoleProgressReporter>();
+				services.AddTransient<ILossFunction, SquaredErrorLossFunction>();
+
+				// NeuralNetwork now takes a configurable number of inputs, so the default constructor no longer makes sense.
+				// services.AddTransient<INeuralNetwork, NeuralNetwork>();
 			});
 	}
 }

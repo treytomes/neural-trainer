@@ -1,32 +1,34 @@
 ﻿using NeuralTrainer.Domain.ActivationFunctions;
+using NeuralTrainer.Domain.LossFunctions;
+using NeuralTrainer.Domain.Training;
+using NeuralTrainer.Domain.WeightInitializers;
 
 namespace NeuralTrainer.Domain;
 
-
 // TODO: Single Responsibility Principle (SRP) violations to fix:
-// TODO: - Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
-// TODO: - Extract weight initialization logic into IWeightInitializer interface
-// TODO: - Extract training/backpropagation logic into separate ITrainer or IOptimizer class
-// TODO: - Extract loss calculation into ILossFunction interface
-// TODO: - Extract progress reporting (Console.WriteLine) into IProgressReporter interface
+// TODO: - (done) Extract activation function (Sigmoid/SigmoidDerivative) into IActivationFunction interface
+// TODO: - (done) Extract weight initialization logic into IWeightInitializer interface
+// TODO: - (done) Extract loss calculation into ILossFunction interface
+// TODO: - (done) Extract training/backpropagation logic into separate ITrainer or IOptimizer class
+// TODO: - (done) Extract progress reporting (Console.WriteLine) into IProgressReporter interface
 
 // TODO: Open/Closed Principle (OCP) improvements:
-// TODO: - Make network architecture configurable (layers, neurons) without modifying this class
+// TODO: - (half done...) Make network architecture configurable (layers, neurons) without modifying this class
 // TODO: - Allow different optimization algorithms without changing Train method
-// TODO: - Support different loss functions without modifying the training loop
+// TODO: - (done) Support different loss functions without modifying the training loop
 
-// TODO: Dependency Inversion Principle (DIP) fixes:
-// TODO: - Inject Random instance or IRandom interface instead of creating internally
-// TODO: - Remove direct Console.WriteLine dependency - inject ILogger or IProgressReporter
-// TODO: - Constructor should depend on abstractions, not create concrete implementations
+// TODO: Liskov Substitution Principle (LSP) preparations:
+// TODO: - Define base abstractions (INeuralNetwork) that derived types can properly implement
+// TODO: - Ensure any future network types can be substituted without breaking behavior
 
 // TODO: Interface Segregation Principle (ISP) considerations:
 // TODO: - Create focused interfaces: IForwardPropagation, ITrainable, IPredictable
 // TODO: - Clients shouldn't be forced to depend on methods they don't use
 
-// TODO: Liskov Substitution Principle (LSP) preparations:
-// TODO: - Define base abstractions (INeuralNetwork) that derived types can properly implement
-// TODO: - Ensure any future network types can be substituted without breaking behavior
+// TODO: Dependency Inversion Principle (DIP) fixes:
+// TODO: - Inject Random instance or IRandom interface instead of creating internally
+// TODO: - Remove direct Console.WriteLine dependency - inject ILogger or IProgressReporter
+// TODO: - Constructor should depend on abstractions, not create concrete implementations
 
 // TODO: Additional refactoring for clean architecture:
 // TODO: - Make weight and bias immutable after training (or provide read-only access)
@@ -35,73 +37,46 @@ namespace NeuralTrainer.Domain;
 // TODO: - Extract hyperparameters (learning rate) into a configuration object
 // TODO: - Add proper abstraction for network state persistence/loading
 
-
-public class NeuralNetwork
+public class NeuralNetwork : INeuralNetwork
 {
-	private double _weight;
-	private double _bias;
-	private readonly double _learningRate;
-	private readonly IActivationFunction _activationFunction;
+	#region Fields
 
-	public NeuralNetwork(double learningRate, IActivationFunction activationFunction)
+	private INeuron _neuron;
+
+	#endregion
+
+	#region Constructors
+
+	public NeuralNetwork(int inputSize, IActivationFunction activationFunction, IWeightInitializer weightInitializer)
 	{
-		if (double.IsNaN(learningRate) || double.IsInfinity(learningRate))
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be a finite number.");
-		}
-		if (learningRate <= 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate must be positive.");
-		}
-		if (learningRate > 1)
-		{
-			throw new ArgumentOutOfRangeException(nameof(learningRate), "Learning rate should not exceed 1 for stable training.");
-		}
-
-		_learningRate = learningRate;
-		_activationFunction = activationFunction;
-
-		// Initialize with random values
-		var random = new Random();
-
-		_weight = random.NextDouble() * 2 - 1; // Random value between -1 and 1
-		_bias = random.NextDouble() * 2 - 1;
+		InputSize = inputSize;
+		_neuron = new Neuron(inputSize, activationFunction, weightInitializer);
 	}
 
-	public double Forward(double input)
+	#endregion
+
+	#region Properties
+
+	public int InputSize { get; }
+
+	#endregion
+
+	#region Methods
+
+	public double Forward(IReadOnlyList<double> inputs)
 	{
-		var z = input * _weight + _bias;
-		return _activationFunction.Activate(z);
+		return _neuron.Forward(inputs);
 	}
 
-	public void Train(TrainingExample[] examples, int epochs)
+	public void UpdateParameters(IReadOnlyList<double> weightDeltas, double biasDelta)
 	{
-		for (var epoch = 0; epoch < epochs; epoch++)
-		{
-			var totalLoss = 0.0;
-
-			foreach (var example in examples)
-			{
-				// Forward pass
-				var output = Forward(example.Input);
-
-				// Calculate loss (squared error)
-				var error = example.Target - output;
-				totalLoss += error * error;
-
-				// Backpropagation
-				var outputGradient = error * _activationFunction.Derivative(output);
-
-				// Update weights and bias
-				_weight += _learningRate * outputGradient * example.Input;
-				_bias += _learningRate * outputGradient;
-			}
-
-			// Print progress every 1000 epochs
-			if (epoch % 1000 == 0)
-			{
-				Console.WriteLine($"Epoch {epoch}, Loss: {totalLoss / examples.Length:F4}");
-			}
-		}
+		_neuron.UpdateParameters(weightDeltas, biasDelta);
 	}
+
+	public (IReadOnlyList<double> weightGradients, double biasGradient) CalculateGradients(IReadOnlyList<double> inputs, double outputGradient)
+	{
+		return _neuron.CalculateGradients(inputs, outputGradient);
+	}
+
+	#endregion
 }

@@ -10,9 +10,11 @@
 		"docstates",
 		"dotnettools",
 		"highlightdark",
+		"Kaiming",
 		"lcovname",
 		"Liskov",
 		"msbuild",
+		"nand",
 		"omnisharp",
 		"reportgenerator",
 		"reporttypes",
@@ -22,9 +24,9 @@
 		"targetdir",
 		"userosscache",
 		"userprefs",
+		"XNOR",
 		"xunit"
 	],
-
 	"editor.bracketPairColorization.enabled": true,
 	"editor.codeActionsOnSave": {
 		"source.fixAll": "always",
@@ -35,36 +37,34 @@
 	"editor.detectIndentation": false,
 	"editor.formatOnSave": true,
 	"editor.formatOnType": true,
-    "editor.guides.bracketPairs": true,
+	"editor.guides.bracketPairs": true,
 	"editor.insertSpaces": false,
-    "editor.minimap.enabled": true,
+	"editor.minimap.enabled": true,
 	"editor.renderWhitespace": "all",
-	"editor.rulers": [100],
+	"editor.rulers": [
+		100
+	],
 	"editor.tabSize": 4,
-
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true,
-
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
 	"csharp.debug.expressionEvaluationOptions.allowImplicitFuncEval": false,
 	"csharp.format.enable": true,
-    "csharp.semanticHighlighting.enabled": true,
-    "omnisharp.enableEditorConfigSupport": true,
-
+	"csharp.semanticHighlighting.enabled": true,
+	"omnisharp.enableEditorConfigSupport": true,
 	// C# Dev Kit formatting settings
 	"[csharp]": {
 		"editor.defaultFormatter": "ms-dotnettools.csharp",
 		"editor.codeActionsOnSave": {
 			"source.fixAll": "always"
 		}
-	}
-,
-  "dotnet-test-explorer.testProjectPath": "**/*Tests.csproj",
-  "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=./TestResults/lcov.info",
-  "coverage-gutters.lcovname": "TestResults/lcov.info",
-  "coverage-gutters.showLineCoverage": true,
-  "coverage-gutters.showRulerCoverage": true,
-  "coverage-gutters.highlightdark": "rgba(45, 121, 10, 0.5)",
-"coverage-gutters.noHighlightDark": "rgba(121, 31, 10, 0.5)",
-"FSharp.suggestGitignore": false
+	},
+	"dotnet-test-explorer.testProjectPath": "**/*Tests.csproj",
+	"dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=./TestResults/lcov.info",
+	"coverage-gutters.lcovname": "TestResults/lcov.info",
+	"coverage-gutters.showLineCoverage": true,
+	"coverage-gutters.showRulerCoverage": true,
+	"coverage-gutters.highlightdark": "rgba(45, 121, 10, 0.5)",
+	"coverage-gutters.noHighlightDark": "rgba(121, 31, 10, 0.5)",
+	"FSharp.suggestGitignore": false
 }
