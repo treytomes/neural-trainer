@@ -124,7 +124,8 @@ class Program
 			{
 				services.Configure<AppSettings>(hostContext.Configuration);
 				// services.AddTransient<IAppState, NOTGateTrainingAppState>();
-				services.AddTransient<IAppState, BinaryGateTrainingAppState>();
+				// services.AddTransient<IAppState, BinaryGateTrainingAppState>();
+				services.AddTransient<IAppState, NonLinearTrainingAppState>();
 
 				services.AddTransient<IActivationFunctionFactory>(sp => new ActivationFunctionFactory(
 					sp.GetRequiredService<IOptions<AppSettings>>().Value.DefaultActivationFunction

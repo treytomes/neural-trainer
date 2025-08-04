@@ -3,7 +3,7 @@ using NeuralTrainer.Domain.LossFunctions;
 namespace NeuralTrainer.Domain.Training;
 
 /// <summary>
-/// Implements stochastic gradient descent training algorithm.
+/// Implements stochastic gradient descent training algorithm with support for multi-layer networks.
 /// </summary>
 public class GradientDescentTrainer : ITrainer
 {
@@ -64,25 +64,30 @@ public class GradientDescentTrainer : ITrainer
 				// Calculate error gradients for each output
 				var errorGradients = _lossFunction.Derivative(outputs, example.Targets);
 
-				// Get gradients from the network
-				var gradientsPerNeuron = network.CalculateGradients(example.Inputs, errorGradients);
+				// Backpropagate to get gradients for all layers
+				var layerGradients = network.Backpropagate(example.Inputs, errorGradients);
 
-				// Prepare weight deltas and bias deltas for all neurons
-				var weightDeltasList = new List<IReadOnlyList<double>>(gradientsPerNeuron.Count);
-				var biasDeltasList = new List<double>(gradientsPerNeuron.Count);
+				// Prepare updates for all layers
+				var layerUpdates = new List<IReadOnlyList<(IReadOnlyList<double> weightDeltas, double biasDelta)>>();
 
-				foreach (var (weightGradients, biasGradient) in gradientsPerNeuron)
+				foreach (var layerGradient in layerGradients)
 				{
-					// Scale by learning rate
-					var weightDeltas = weightGradients.Select(g => _learningRate * g).ToList();
-					var biasDelta = _learningRate * biasGradient;
+					var updates = new List<(IReadOnlyList<double> weightDeltas, double biasDelta)>();
 
-					weightDeltasList.Add(weightDeltas);
-					biasDeltasList.Add(biasDelta);
+					foreach (var (weightGradients, biasGradient) in layerGradient)
+					{
+						// Scale by learning rate
+						var weightDeltas = weightGradients.Select(g => _learningRate * g).ToList();
+						var biasDelta = _learningRate * biasGradient;
+
+						updates.Add((weightDeltas, biasDelta));
+					}
+
+					layerUpdates.Add(updates);
 				}
 
-				// Update parameters for all neurons
-				network.UpdateParameters(weightDeltasList, biasDeltasList);
+				// Update all layers
+				network.UpdateAllLayers(layerUpdates);
 			}
 
 			_progressReporter.ReportProgress(epoch, totalLoss / examples.Count());

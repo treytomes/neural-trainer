@@ -3,7 +3,7 @@ namespace NeuralTrainer.Domain;
 /// <summary>
 /// Interface for neural networks that can be trained.
 /// </summary>
-public interface INeuralNetwork
+public interface ILayer
 {
 	/// <summary>
 	/// The number of inputs accepted in this layer.
